@@ -3,6 +3,15 @@
 
 (cl:in-package :mds)
 
+(defun shot-adapter-function (&key x y num-shots direction speed spread (color *BLACK*))
+  (do-burst ((x-pos x)
+	     (y-pos y)
+	     (n num-shots)
+	     (dir direction)
+	     (spd speed)
+	     spread)
+    (enemy-shoot x-pos y-pos spd dir color)))
+
 ;; Level 1 (single emitter 7 arms swirley :) )
 (defun level-1 ()
   (let ((a (make-instance 'emitter
@@ -11,16 +20,8 @@
 			  :parent-y (* *height* .75)
 			  :repeating t)))
 
-    (setf (shot-push-func a)
-	  (lambda (&key x y num-shots direction speed spread)
-	     (do-burst ((x-pos x)
-			(y-pos y)
-			(n num-shots)
-			(dir direction)
-			(spd speed)
-			spread)
-	       (enemy-shoot x-pos y-pos spd dir (rand-color)))))
-			    
+    (setf (shot-push-func a) #'shot-adapter-function)
+
     (dotimes (i 100)
       (let ((percent (/ i 99.0)))
 	(push-burst a 
@@ -28,6 +29,7 @@
 		     :spread (* TAU 6/7) 
 		     :speed 4 
 		     :num-shots 7
+		     :color *GREEN*
 		     :step 5)))
     
     (dotimes (i 10)
@@ -36,6 +38,7 @@
 		  :spread TAU
 		  :speed 5
 		  :num-shots (+ i 10)
+		  :color *YELLOW*
 		  :step 3))
     
     (vector-push-extend a *enemies*)))
@@ -51,38 +54,22 @@
 			  :parent-y  (* *height* .75)
 			  :repeating t)))
 
-    (setf (shot-push-func a)
-	  (lambda (&key x y num-shots direction speed spread)
-	    (do-burst ((x-pos x)
-		       (y-pos y)
-		       (n num-shots)
-		       (dir direction)
-		       (spd speed)
-			spread)
-	      (enemy-shoot x-pos y-pos spd dir *ORANGE*))))
-    
-    (setf (shot-push-func b)
-	  (lambda (&key x y num-shots direction speed spread)
-	     (do-burst ((x-pos x)
-			(y-pos y)
-			(n num-shots)
-			(dir direction)
-			(spd speed)
-			spread)
-	       (enemy-shoot x-pos y-pos spd dir *RED*))))
+    (setf (shot-push-func a) #'shot-adapter-function)
+    (setf (shot-push-func b) #'shot-adapter-function)
 
     (dotimes (i 15)
       (push-burst a :direction (+ (* pi .5) (* i (* PI .10)))  
 		  :spread TAU
 		  :speed (lerp 3 7 (/ i 14.0))
 		  :num-shots 10
-		  
+		  :color *RED*
 		  :step (lerp 10 2 (round (/ i 14))))
       
       (push-burst b :direction (+ (* pi .5) (* i (* PI -.10)))  
 		  :spread TAU
 		  :speed (lerp 3 7 (/ i 14.0))
 		  :num-shots 10
+		  :color *ORANGE*
 		  :step (lerp 10 2 (round (/ i 14)))))
     
     (vector-push-extend a *enemies*)

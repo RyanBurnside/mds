@@ -1,9 +1,10 @@
 # mds
-### _Your Name <your.name@example.com>_
+### Ryan Burnside (Pixel_Outlaw)
 
-This is a project to do ... something.
+This is my entry for the Lisp Game Jam (Spring 2018)
+Special thanks to "Borodust" for trivial-gamekit
 
-## License
+## License 
+Class C Driver's (US)
 
-Specify license here
 

@@ -41,7 +41,14 @@
     ;sbcl will use 0 for empty list clisp uses NIL
     (if val val 0)))
 
-(defmethod push-burst ((emitter emitter) &key (step 0) (relative t) num-shots speed spread (direction (* PI .5)))
+(defmethod push-burst ((emitter emitter) 
+		       &key (step 0) 
+			 (relative t) 
+			 num-shots 
+			 speed 
+			 spread 
+			 (direction (* PI .5))
+			 color)
   "Inserts a burst parameter list into an emitter, 
 aim may be a direction or 'player to call the assigned player targeting 
 function. Step is the current index which is inserted by adding on to the last 
@@ -55,6 +62,7 @@ previous data held at index step"
 	  (list :num-shots num-shots
 		:spread spread
 		:speed speed
+		:color color
 		:direction direction))
     (setf (ready-at emitter) (get-largest-key emitter))))
 
@@ -86,7 +94,8 @@ previous data held at index step"
        :direction final-direction
        :speed (getf h :speed)
        :spread (getf h :spread)
-       :num-shots (getf h :num-shots))))
+       :num-shots (getf h :num-shots)
+       :color (getf h :color))))
   
   ;; Now see if the tick count needs to reset
   (when (= ready-at value)

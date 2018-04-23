@@ -7,8 +7,10 @@
 (defparameter *lives* 5)
 (defparameter *score* 0)
 (defparameter *level* 1)
+
 (defparameter *level-functions* 
   (make-array 1 :fill-pointer 0 :adjustable t))
+
 (defparameter *player* nil)
 
 (defun make-player ()
@@ -29,7 +31,7 @@
 (defun reset-game ()
   (make-player)
   (setup-level-functions)
-  (funcall (aref *level-functions* 0))
+  (funcall (aref *level-functions* 1))
   (setf *lives* 5)
   (setf *score* 0)
   (setf *level* 1))
@@ -95,7 +97,6 @@
 (defun draw-hud ()
   (draw-text (format nil "Alive ~a" (length *enemy-shots*))
 	     (vec2 0.0 0.0))
-
   (draw-text (format nil "~a" *score*) (vec2 0.0 (- *height*  18)))
   (draw-text (format nil "~a" *lives*) (vec2 0.0 (- *height*  36)))
   (draw-text (format nil "~a" *level*) (vec2 0.0 (- *height*  54))))
@@ -108,15 +109,10 @@
 	       :thickness 2)
   (draw *player*))
 
-(defun move-player
-    ;; We allow both keyboard and mouse (for the heathen)
-    ())
-
 (defmethod gamekit:draw ((this example))
   (loop for i across *enemies* do (stepf i))
   (loop for i across *enemy-shots* do (move i))
   (loop for i across *enemy-shots* do (draw i))
-  (move-player)
   (draw-player)
   (loop for i across *enemy-shots* do
     (with-slots (pos radius dead) i
