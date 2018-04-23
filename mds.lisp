@@ -8,19 +8,19 @@
 (defparameter *score* 0)
 (defparameter *level* 1)
 
-(defparameter *level-functions* 
+(defparameter *level-functions*
   (make-array 1 :fill-pointer 0 :adjustable t))
 
 (defparameter *player* nil)
 
 (defun make-player ()
-  (setf *player* (make-instance 'obj 
+  (setf *player* (make-instance 'obj
 				:hp 3 ;lives in this case
 				:dead nil
 				:color (vec4 0 0 0 1)
 				:radius 4
 				:pos (vec2 (* *width* .75) (* *height* .20)))))
-			       
+
 
 (defun make-game-container ()
   (make-array 1 :fill-pointer 0 :adjustable t))
@@ -41,19 +41,30 @@
 		 (:viewport-height *height*)
 		 (:viewport-title "Minimal Danmaku Simulator"))
 
+
+(defvar *key-bag* nil)
+
+(defun update-pos ()
+  (when (member :left *key-bag*)
+    (decf (x (pos *player*)) 5))
+  (when (member :right *key-bag*)
+    (incf (x (pos *player*)) 5))
+  (when (member :up *key-bag*)
+    (incf (y (pos *player*)) 5))
+  (when (member :down *key-bag*)
+    (decf (y (pos *player*)) 5)))
+
+(defun bind-movement-button (button)
+  (gamekit:bind-button button :pressed
+                       (lambda ()
+                         (push button *key-bag*)))
+  (gamekit:bind-button button :released
+                       (lambda ()
+                         (deletef *key-bag* button))))
+
 (defmethod gamekit:post-initialize ((app example))
-  (gamekit:bind-button :left :repeating
-                       (lambda ()
-                         (decf (x (pos *player*)) 5)))
-  (gamekit:bind-button :right :repeating
-                       (lambda ()
-                         (incf (x (pos *player*)) 5))) 
-  (gamekit:bind-button :up :repeating
-                       (lambda ()
-                         (incf (y (pos *player*)) 5)))
-  (gamekit:bind-button :down :repeating
-                       (lambda ()
-                         (decf (y (pos *player*)) 5))))
+  (loop for key in '(:left :right :up :down)
+        do (bind-movement-button key)))
 
 ;;; Lotta naughty stuff is going to go down.
 ;;; This will be complete slop in the name of Getting Shit Done (TM)
@@ -87,9 +98,9 @@
 
 (defun enemy-shoot (x y speed direction color)
   (vector-push-extend
-   (make-instance 'obj 
+   (make-instance 'obj
 		  :pos (vec2 x y)
-		  :heading (vec2 (* (cos direction) speed) 
+		  :heading (vec2 (* (cos direction) speed)
 				 (* (sin direction) speed))
 		  :color color)
    *enemy-shots*))
@@ -112,12 +123,15 @@
   (draw-text (format nil "~a" *level*) (vec2 0.0 (- *height*  54))))
 
 (defun draw-player ()
-  (draw-circle (pos *player*) 
+  (draw-circle (pos *player*)
 	       14
 	       :fill-paint (vec4 0 0 0 0)
 	       :stroke-paint *BLACK*
 	       :thickness 2)
   (draw *player*))
+
+(defmethod gamekit:act ((this example))
+  (update-pos))
 
 (defmethod gamekit:draw ((this example))
   (loop for i across *enemies* do (stepf i))
@@ -135,6 +149,6 @@
   (setf *enemy-shots* (delete-if (lambda (a) (dead a)) *enemy-shots*))
   (draw-hud))
 
-(reset-game)
-(gamekit:start 'example)
-
+(defun run ()
+  (reset-game)
+  (gamekit:start 'example))
