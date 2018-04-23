@@ -2,7 +2,6 @@
 
 (cl:in-package :mds)
 
-
 (defparameter *width* 480)
 (defparameter *height* 640)
 (defparameter *lives* 5)
@@ -39,6 +38,20 @@
 		 (:viewport-width *width*)
 		 (:viewport-height *height*)
 		 (:viewport-title "Minimal Danmaku Simulator"))
+
+(defmethod gamekit:post-initialize ((app example))
+  (gamekit:bind-button :left :repeating
+                       (lambda ()
+                         (decf (x (pos *player*)) 5)))
+  (gamekit:bind-button :right :repeating
+                       (lambda ()
+                         (incf (x (pos *player*)) 5))) 
+  (gamekit:bind-button :up :repeating
+                       (lambda ()
+                         (incf (y (pos *player*)) 5)))
+  (gamekit:bind-button :down :repeating
+                       (lambda ()
+                         (decf (y (pos *player*)) 5))))
 
 ;;; Lotta naughty stuff is going to go down.
 ;;; This will be complete slop in the name of Getting Shit Done (TM)
@@ -114,8 +127,7 @@
 		   (< (+ (y pos) radius) 0.0)))))
 
   (setf *enemy-shots* (delete-if (lambda (a) (dead a)) *enemy-shots*))
-  (draw-hud)
-)
+  (draw-hud))
 
 (reset-game)
 (gamekit:start 'example)
