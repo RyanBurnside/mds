@@ -3,15 +3,6 @@
 
 (cl:in-package :mds)
 
-(defun shot-adapter-function (&key x y num-shots direction speed spread (color *BLACK*))
-  (do-burst ((x-pos x)
-	     (y-pos y)
-	     (n num-shots)
-	     (dir direction)
-	     (spd speed)
-	     spread)
-    (enemy-shoot x-pos y-pos spd dir color)))
-
 ;; Level 1 (single emitter 7 arms swirley :) )
 (defun level-1 ()
   (let ((a (make-instance 'emitter

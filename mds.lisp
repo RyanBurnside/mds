@@ -94,6 +94,16 @@
 		  :color color)
    *enemy-shots*))
 
+(defun shot-adapter-function (&key x y num-shots direction speed spread (color *BLACK*))
+  (do-burst ((x-pos x)
+	     (y-pos y)
+	     (n num-shots)
+	     (dir direction)
+	     (spd speed)
+	     spread)
+    (enemy-shoot x-pos y-pos spd dir color)))
+
+
 (defun draw-hud ()
   (draw-text (format nil "Alive ~a" (length *enemy-shots*))
 	     (vec2 0.0 0.0))
