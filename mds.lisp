@@ -6,6 +6,7 @@
 (defparameter *height* 640)
 (defparameter *lives* 5)
 (defparameter *score* 0)
+(defparameter *high-score* 0)
 (defparameter *level* 1)
 (defparameter *player-field-radius* 18)
 
@@ -19,7 +20,7 @@
 				:hp 3 ;lives in this case
 				:dead nil
 				:color (vec4 0 0 0 1)
-				:radius 2
+				:radius 1
 				:pos (vec2 (* *width* .75) (* *height* .20)))))
 
 
@@ -112,6 +113,7 @@
 				     *player-field-radius*)
 		    (> (hp s) 0))
 	   (incf *score* 300)
+	   (when (> *score* *high-score*) (setf *high-score* *score*))
 	   (setf (hp s) 0)))
     (when collided
       (decf *lives*)
@@ -141,9 +143,11 @@
 (defun draw-hud ()
   (draw-text (format nil "Alive ~a" (length *enemy-shots*))
 	     (vec2 0.0 0.0))
-  (draw-text (format nil "~a" *score*) (vec2 0.0 (- *height*  18)))
-  (draw-text (format nil "~a" *lives*) (vec2 0.0 (- *height*  36)))
-  (draw-text (format nil "~a" *level*) (vec2 0.0 (- *height*  54))))
+
+  (draw-text (format nil "Highscore:~a" *high-score*) (vec2 0.0 (- *height*  18)))
+  (draw-text (format nil "Score:~a" *score*) (vec2 0.0 (- *height*  36)))
+  (draw-text (format nil "Lives:~a" *lives*) (vec2 0.0 (- *height*  54)))
+  (draw-text (format nil "Level:~a" *level*) (vec2 0.0 (- *height*  72))))
 
 (defun draw-player ()
   (draw-circle (pos *player*)
