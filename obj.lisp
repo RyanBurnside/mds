@@ -16,5 +16,6 @@
    (dead      :initarg :dead 
 	      :initform nil
 	      :accessor dead)
-   (HP        :initarg :HP 
+   (HP        :initarg :HP
+	      :accessor hp
 	      :initform 1)))

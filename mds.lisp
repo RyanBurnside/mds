@@ -7,6 +7,7 @@
 (defparameter *lives* 5)
 (defparameter *score* 0)
 (defparameter *level* 1)
+(defparameter *player-field-radius* 18)
 
 (defparameter *level-functions*
   (make-array 1 :fill-pointer 0 :adjustable t))
@@ -18,7 +19,7 @@
 				:hp 3 ;lives in this case
 				:dead nil
 				:color (vec4 0 0 0 1)
-				:radius 4
+				:radius 2
 				:pos (vec2 (* *width* .75) (* *height* .20)))))
 
 
@@ -29,9 +30,11 @@
 (defparameter *enemies* (make-game-container))
 
 (defun reset-game ()
+  (setf *enemy-shots* (make-game-container))
+  (setf *enemies* (make-game-container))
   (make-player)
   (setup-level-functions)
-  (funcall (aref *level-functions* 1))
+  (funcall (aref *level-functions* 0))
   (setf *lives* 5)
   (setf *score* 0)
   (setf *level* 1))
@@ -46,13 +49,13 @@
 
 (defun update-pos ()
   (when (member :left *key-bag*)
-    (decf (x (pos *player*)) 5))
+    (decf (x (pos *player*)) 3))
   (when (member :right *key-bag*)
-    (incf (x (pos *player*)) 5))
+    (incf (x (pos *player*)) 3))
   (when (member :up *key-bag*)
-    (incf (y (pos *player*)) 5))
+    (incf (y (pos *player*)) 3))
   (when (member :down *key-bag*)
-    (decf (y (pos *player*)) 5)))
+    (decf (y (pos *player*)) 3)))
 
 (defun bind-movement-button (button)
   (gamekit:bind-button button :pressed
@@ -89,12 +92,32 @@
 (defun circles-collide-p (x y radius x2 y2 radius2)
   ;; Yes I know about the faster way of doing this screw it this is shorter
   (<= (point-distance x y x2 y2)
-      (radius radius2)))
+      (+ radius radius2)))
 
 (defmethod objects-collide-p ((obj1 obj) (obj2 obj))
-  (with-slots (pos1 radius1) obj1
-    (with-slots (pos2 radius2) obj2
+  (with-slots ((pos1 pos) (radius1 radius)) obj1
+    (with-slots ((pos2 pos) (radius2 radius)) obj2
       (circles-collide-p (x pos1) (y pos1) radius1 (x pos2) (y pos2) radius2))))
+
+(defun player-collide-bullet ()
+  (let ((collided nil))
+    (loop for s across *enemy-shots* do
+	 (when (objects-collide-p *player* s)
+	   (setf collided t))
+	 (when (and (circles-collide-p (x (pos s)) 
+				     (y (pos s))
+				     (radius s)
+				     (x (pos *player*))
+				     (y (pos *player*))
+				     *player-field-radius*)
+		    (> (hp s) 0))
+	   (incf *score* 300)
+	   (setf (hp s) 0)))
+    (when collided
+      (decf *lives*)
+      (setf *enemy-shots* (make-game-container))
+      (when (< *lives* 0)
+	(reset-game)))))
 
 (defun enemy-shoot (x y speed direction color)
   (vector-push-extend
@@ -124,7 +147,7 @@
 
 (defun draw-player ()
   (draw-circle (pos *player*)
-	       14
+	       *player-field-radius*
 	       :fill-paint (vec4 0 0 0 0)
 	       :stroke-paint *BLACK*
 	       :thickness 2)
@@ -137,6 +160,7 @@
   (loop for i across *enemies* do (stepf i))
   (loop for i across *enemy-shots* do (move i))
   (loop for i across *enemy-shots* do (draw i))
+  (player-collide-bullet)
   (draw-player)
   (loop for i across *enemy-shots* do
     (with-slots (pos radius dead) i

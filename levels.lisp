@@ -20,7 +20,7 @@
 		     :spread (* TAU 6/7) 
 		     :speed 4 
 		     :num-shots 7
-		     :color *GREEN*
+		     :color (if (oddp i) *GREEN* *BLUE*)
 		     :step 5)))
     
     (dotimes (i 10)
@@ -29,7 +29,7 @@
 		  :spread TAU
 		  :speed 5
 		  :num-shots (+ i 10)
-		  :color *YELLOW*
+		  :color (if (oddp i) *YELLOW* *PURPLE*)
 		  :step 3))
     
     (vector-push-extend a *enemies*)))
