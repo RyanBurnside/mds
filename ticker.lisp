@@ -19,6 +19,9 @@
   (unless (readyp ticker)
     (incf (value ticker))))
 
+(defmethod percent-done ((ticker ticker))
+  (/ (value ticker) (float (ready-at ticker))))
+
 (defmethod resetf ((ticker ticker))
   (setf (value ticker) 0))
 

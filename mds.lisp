@@ -8,7 +8,9 @@
 (defparameter *score* 0)
 (defparameter *high-score* 0)
 (defparameter *level* 1)
-(defparameter *player-field-radius* 18)
+(defparameter *scrape-ticker* (make-ticker :ready-at 100))
+
+(defparameter *player-field-radius* 29)
 
 (defparameter *level-functions*
   (make-array 1 :fill-pointer 0 :adjustable t))
@@ -20,7 +22,7 @@
 				:hp 3 ;lives in this case
 				:dead nil
 				:color (vec4 0 0 0 1)
-				:radius 1
+				:radius .5
 				:pos (vec2 (* *width* .75) (* *height* .20)))))
 
 
@@ -29,15 +31,44 @@
 
 (defparameter *enemy-shots* (make-game-container))
 (defparameter *enemies* (make-game-container))
+(defparameter *sparks* (make-game-container))
+
+(defun reposition-player ()
+  (setf (pos *player*)
+	(vec2 (* *width* .5) (* *height* .20))))
+
+(defun contain-player ()
+  (when (< (x (pos *player*)) 1)
+    (setf (x (pos *player*)) 1))
+  (when (< (y (pos *player*)) 1)
+    (setf (y (pos *player*)) 1))
+  (when (> (x (pos *player*)) (1- *width*))
+    (setf (x (pos *player*)) (1- *width*)))
+  (when (> (y (pos *player*)) (1- *height*))
+    (setf (y (pos *player*)) (1- *height*))))
+
+(defun advance-level-if-done ()
+  (when (readyp *scrape-ticker*)
+    (if (< *level* (length *level-functions*))
+	(incf *level*)
+	(setf *level* 1))
+    (setf *enemy-shots* (make-game-container))
+    (setf *enemies* (make-game-container))
+    (reposition-player)
+    (funcall (aref *level-functions* (1- *level*)))
+    (resetf *scrape-ticker*)))
 
 (defun reset-game ()
   (setf *enemy-shots* (make-game-container))
   (setf *enemies* (make-game-container))
   (make-player)
+  (reposition-player)
   (setup-level-functions)
   (funcall (aref *level-functions* 0))
   (setf *lives* 5)
   (setf *score* 0)
+  (resetf *scrape-ticker*)
+  (reposition-player)
   (setf *level* 1))
 
 (gamekit:defgame example () ()
@@ -56,7 +87,8 @@
   (when (member :up *key-bag*)
     (incf (y (pos *player*)) 3))
   (when (member :down *key-bag*)
-    (decf (y (pos *player*)) 3)))
+    (decf (y (pos *player*)) 3))
+  (contain-player))
 
 (defun bind-movement-button (button)
   (gamekit:bind-button button :pressed
@@ -90,6 +122,15 @@
 		       :fill-paint (vec4 0 0 0 0)
 		       :thickness 2))
 
+(defun draw-shot (obj)
+  (gamekit:draw-circle (pos obj)
+		       (radius obj)
+		       :fill-paint (color obj)
+		       :stroke-paint (if (> (hp obj) 0) (color obj) *black*)
+		       :fill-paint (vec4 0 0 0 0)
+		       :thickness 2))
+  
+
 (defun circles-collide-p (x y radius x2 y2 radius2)
   ;; Yes I know about the faster way of doing this screw it this is shorter
   (<= (point-distance x y x2 y2)
@@ -113,6 +154,7 @@
 				     *player-field-radius*)
 		    (> (hp s) 0))
 	   (incf *score* 300)
+	   (tickf *scrape-ticker*)
 	   (when (> *score* *high-score*) (setf *high-score* *score*))
 	   (setf (hp s) 0)))
     (when collided
@@ -147,8 +189,9 @@
   (draw-text (format nil "Highscore:~a" *high-score*) (vec2 0.0 (- *height*  18)))
   (draw-text (format nil "Score:~a" *score*) (vec2 0.0 (- *height*  36)))
   (draw-text (format nil "Lives:~a" *lives*) (vec2 0.0 (- *height*  54)))
-  (draw-text (format nil "Level:~a" *level*) (vec2 0.0 (- *height*  72))))
-
+  (draw-text (format nil "Level:~a" *level*) (vec2 0.0 (- *height*  72)))
+  (draw-text (format nil "Percent:~a" (percent-done *scrape-ticker*))
+	     (vec2 0.0 (- *height* 90))))
 (defun draw-player ()
   (draw-circle (pos *player*)
 	       *player-field-radius*
@@ -163,9 +206,11 @@
 (defmethod gamekit:draw ((this example))
   (loop for i across *enemies* do (stepf i))
   (loop for i across *enemy-shots* do (move i))
-  (loop for i across *enemy-shots* do (draw i))
+  (loop for i across *enemy-shots* do (draw-shot i))
+
   (player-collide-bullet)
   (draw-player)
+
   (loop for i across *enemy-shots* do
     (with-slots (pos radius dead) i
 	 (setf dead
@@ -175,6 +220,7 @@
 		   (< (+ (y pos) radius) 0.0)))))
 
   (setf *enemy-shots* (delete-if (lambda (a) (dead a)) *enemy-shots*))
+  (advance-level-if-done)
   (draw-hud))
 
 (defun run ()

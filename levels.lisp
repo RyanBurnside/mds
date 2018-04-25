@@ -48,7 +48,7 @@
     (setf (shot-push-func a) #'shot-adapter-function)
     (setf (shot-push-func b) #'shot-adapter-function)
 
-    (dotimes (i 15)
+    (dotimes (i 10)
       (push-burst a :direction (+ (* pi .5) (* i (* PI .10)))  
 		  :spread TAU
 		  :speed (lerp 3 7 (/ i 14.0))
