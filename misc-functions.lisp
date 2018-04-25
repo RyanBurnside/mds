@@ -42,7 +42,9 @@
 	   (setf ,iter-var ,i)
 	   ,@body)))))
 
-
+(defun pick (&rest items)
+  (nth (random (length items))
+       items))
 
 (defun point-distance (x y x2 y2)
   (sqrt (+ (expt (- x2 x) 2) 

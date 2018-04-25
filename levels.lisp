@@ -20,7 +20,7 @@
 		     :spread (* TAU 6/7) 
 		     :speed 4 
 		     :num-shots 7
-		     :color (if (oddp i) *GREEN* *BLUE*)
+		     :color (pick *GREEN* *BLUE*)
 		     :step 5)))
     
     (dotimes (i 10)
