@@ -10,6 +10,13 @@
 (defparameter *level* 1)
 (defparameter *scrape-ticker* (make-ticker :ready-at 100))
 
+(defun half-width ()
+  (* *width* .5))
+
+(defun half-height ()
+  (* *height* .5))
+
+
 (defparameter *player-field-radius* 29)
 
 (defparameter *level-functions*
@@ -58,13 +65,13 @@
     (funcall (aref *level-functions* (1- *level*)))
     (resetf *scrape-ticker*)))
 
-(defun reset-game ()
+(defun reset-game (&optional (level 1))
   (setf *enemy-shots* (make-game-container))
   (setf *enemies* (make-game-container))
   (make-player)
   (reposition-player)
   (setup-level-functions)
-  (funcall (aref *level-functions* 0))
+  (funcall (aref *level-functions* (1- level)))
   (setf *lives* 5)
   (setf *score* 0)
   (resetf *scrape-ticker*)
@@ -107,8 +114,8 @@
 ;;; Take your design patterns elsewhere-we got shit to get done
 
 (defun direction-to-player (x y)
-  (atan (- y (y (pos *player*)))
-	(- x (x (pos *player*)))))
+  (atan (- (y (pos *player*)) y)
+	(- (x (pos *player*)) x)))
 
 (defmethod move ((obj obj))
   (with-slots (pos heading) obj
