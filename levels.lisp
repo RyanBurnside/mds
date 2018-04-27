@@ -48,8 +48,8 @@
     (vector-push-extend a *enemies*)))
 
 (defun level-2 ()
-    (let ((a (make-emitter (* *width* .20) (* *height* .5)))
-	  (b (make-emitter (* *width* .80) (* *height* .5)))
+    (let ((a (make-emitter (* *width* .20) (* *height* .75)))
+	  (b (make-emitter (* *width* .80) (* *height* .75)))
 	  (c (make-emitter (half-width) (* *height* .75))))
 
       (push-burst a :direction 'player :num-shots 4
@@ -64,9 +64,9 @@
 	(push-burst c :direction (random TAU)
 		    :color (pick *YELLOW* *BLACK*)
 		    :spread TAU
-		    :step 5
-		    :num-shots 8
-		    :speed 5))
+		    :step 6
+		    :num-shots 6
+		    :speed 4))
 
       (vector-push-extend a *enemies*)
       (vector-push-extend b *enemies*)

@@ -56,7 +56,7 @@
 
 (defun advance-level-if-done ()
   (when (readyp *scrape-ticker*)
-    (if (< *level* (length *level-functions*))
+    (if (< *level* (1- (length *level-functions*)))
 	(incf *level*)
 	(setf *level* 1))
     (setf *enemy-shots* (make-game-container))
@@ -161,6 +161,7 @@
 				     *player-field-radius*)
 		    (> (hp s) 0))
 	   (incf *score* 300)
+	   (draw-lightning)
 	   (tickf *scrape-ticker*)
 	   (when (> *score* *high-score*) (setf *high-score* *score*))
 	   (setf (hp s) 0)))
@@ -198,7 +199,39 @@
   (draw-text (format nil "Lives:~a" *lives*) (vec2 0.0 (- *height*  54)))
   (draw-text (format nil "Level:~a" *level*) (vec2 0.0 (- *height*  72)))
   (draw-text (format nil "Percent:~a" (percent-done *scrape-ticker*))
-	     (vec2 0.0 (- *height* 90))))
+	     (vec2 0.0 (- *height* 90)))
+  (loop for i across *enemies* do
+       (let* ((max-width 100.0)
+	      (width (* max-width (- 1 (percent-done *scrape-ticker*))))
+	      (half-width (* width .5))
+	      (y-offset 32)
+	      (pos (vec2 (parent-x i)
+			 (parent-y i))))
+	 (draw-line (add pos (vec2 (- half-width) y-offset))
+		    (add pos (vec2 half-width y-offset))
+		    *RED*
+		    :thickness 8))))
+
+(defun lightning-point ()
+  (mult  (normalize
+	  (vec2 (* (expt -1.0 (random 2)) (random 1.0))
+		(* (expt -1.0 (random 2)) (random 1.0))))
+	 (float *player-field-radius*)))
+
+(defun draw-lightning ()
+  (loop for i across *enemies* do
+       (draw-curve (pos *player*)
+		   (vec2 (parent-x i)
+			 (parent-y i))
+		   (subt (pos *player*)
+			 (lightning-point))
+		   (subt (pos *player*)
+			 (lightning-point))
+		   *BLACK*
+		   :thickness 4)))
+
+		   
+
 (defun draw-player ()
   (draw-circle (pos *player*)
 	       *player-field-radius*
@@ -207,14 +240,24 @@
 	       :thickness 2)
   (draw *player*))
 
+(defun draw-emitters ()
+  (loop for i across *enemies* do
+       (draw-circle (vec2 (parent-x i)
+			  (parent-y i))
+		    32
+		    :thickness 3
+		    :fill-paint (vec4 0 0 0 1)
+		    :stroke-paint *RED*)))
+
 (defmethod gamekit:act ((this example))
   (update-pos))
 
 (defmethod gamekit:draw ((this example))
   (loop for i across *enemies* do (stepf i))
   (loop for i across *enemy-shots* do (move i))
-  (loop for i across *enemy-shots* do (draw-shot i))
 
+  (loop for i across *enemy-shots* do (draw-shot i))
+  (draw-emitters)
   (player-collide-bullet)
   (draw-player)
 
