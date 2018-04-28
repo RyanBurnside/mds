@@ -26,6 +26,7 @@
 ;; Level 1 (single emitter 7 arms swirley :) )
 (defun level-1 ()
   (let ((a (make-emitter (half-width) (* *height* .75))))
+
     (dotimes (i 100)
       (let ((percent (/ i 99.0)))
 	(push-burst a 
@@ -55,47 +56,64 @@
       (push-burst a :direction 'player :num-shots 4
 		  :color *RED* :step 5 :spread (* PI .45)
 		  :speed 10)
-
+      
       (push-burst b :direction 'player :num-shots 4
-		  :color *RED* :step 5 :spread (* PI .45)
+		  :color *BLUE* :step 5 :spread (* PI .45)
 		  :speed 10)
 
+      (push-burst c :num-shots 1 
+		  :direction 'player
+		  :step 50
+		  :speed 1)
       (dotimes (i 100)
-	(push-burst c :direction (random TAU)
-		    :color (pick *YELLOW* *BLACK*)
-		    :spread TAU
-		    :step 6
-		    :num-shots 6
-		    :speed 4))
-
+	(let ((dir (random TAU)))
+	  (dotimes (j 4)
+	    (push-burst c :direction dir
+			:color (pick *ORANGE* *YELLOW* *BLACK*)
+			:spread (* TAU 6/7)
+			:step 3
+			:num-shots 6
+			:speed 6))))
+	
       (vector-push-extend a *enemies*)
       (vector-push-extend b *enemies*)
       (vector-push-extend c *enemies*)))
 
 
 (defun level-3 ()
-  (let ((a (make-emitter (* *width* .25) (* *height* .75)))
-	(b (make-emitter (* *width* .75) (* *height* .75))))
+  (let ((a (make-emitter (* *width* .25) (* *height* .95)))
+	(b (make-emitter (* *width* .75) (* *height* .95)))
+	(sniper (make-emitter (half-width) (* *height* .80))))
 
-    (dotimes (i 10)
-      (push-burst a :direction (+ (* pi .5) (* i (* PI .10)))  
-		  :spread TAU
-		  :speed (lerp 3 7 (/ i 14.0))
-		  :num-shots 10
-		  :color *RED*
-		  :step (lerp 10 2 (round (/ i 14))))
+    (dotimes (line-count 100)
+      (push-burst a 
+		  :direction (random TAU)
+		  :spread (* TAU 7/8)
+		  :speed 5
+		  :num-shots 7
+		  :color (pick *BLUE* *TEAL*)
+		  :step 6)
       
-      (push-burst b :direction (+ (* pi .5) (* i (* PI -.10)))  
-		  :spread TAU
-		  :speed (lerp 3 7 (/ i 14.0))
-		  :num-shots 10
-		  :color *ORANGE*
-		  :step (lerp 10 2 (round (/ i 14)))))
+      (push-burst b
+		  :direction (random TAU)
+		  :spread (* TAU 7/8)
+		  :speed 5
+		  :num-shots 7
+		  :color (pick *YELLOW* *PURPLE*)
+		  :step 6))
     
+    (push-burst sniper
+		:direction 'player
+		:spread 1
+		:speed 7
+		:num-shots 1
+		:color *RED*
+		:step 100)
+    
+    (vector-push-extend sniper *enemies*)
     (vector-push-extend a *enemies*)
     (vector-push-extend b *enemies*)))
 
-       
 (defun setup-level-functions ()
   (setf *level-functions* (make-array 1 :fill-pointer 0 :adjustable t))
   (vector-push-extend #'level-1 *level-functions*)

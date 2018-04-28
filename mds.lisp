@@ -16,7 +16,6 @@
 (defun half-height ()
   (* *height* .5))
 
-
 (defparameter *player-field-radius* 29)
 
 (defparameter *level-functions*
@@ -56,7 +55,7 @@
 
 (defun advance-level-if-done ()
   (when (readyp *scrape-ticker*)
-    (if (< *level* (1- (length *level-functions*)))
+    (if (< *level* (length *level-functions*))
 	(incf *level*)
 	(setf *level* 1))
     (setf *enemy-shots* (make-game-container))
@@ -83,19 +82,19 @@
 		 (:viewport-height *height*)
 		 (:viewport-title "Minimal Danmaku Simulator"))
 
-
 (defvar *key-bag* nil)
 
 (defun update-pos ()
-  (when (member :left *key-bag*)
-    (decf (x (pos *player*)) 3))
-  (when (member :right *key-bag*)
-    (incf (x (pos *player*)) 3))
-  (when (member :up *key-bag*)
-    (incf (y (pos *player*)) 3))
-  (when (member :down *key-bag*)
-    (decf (y (pos *player*)) 3))
-  (contain-player))
+  (let ((move-speed 3.5))    
+    (when (or (member :left *key-bag*) (member :a *key-bag*))
+      (decf (x (pos *player*)) move-speed))
+    (when (or (member :right *key-bag*) (member :d *key-bag*))
+      (incf (x (pos *player*)) move-speed))
+    (when (or (member :up *key-bag*) (member :w *key-bag*))
+      (incf (y (pos *player*)) move-speed))
+    (when (or (member :down *key-bag*) (member :s *key-bag*))
+      (decf (y (pos *player*)) move-speed))
+    (contain-player)))
 
 (defun bind-movement-button (button)
   (gamekit:bind-button button :pressed
@@ -106,7 +105,7 @@
                          (deletef *key-bag* button))))
 
 (defmethod gamekit:post-initialize ((app example))
-  (loop for key in '(:left :right :up :down)
+  (loop for key in '(:w :s :a :d :left :right :up :down)
         do (bind-movement-button key)))
 
 ;;; Lotta naughty stuff is going to go down.
@@ -181,6 +180,8 @@
    *enemy-shots*))
 
 (defun shot-adapter-function (&key x y num-shots direction speed spread (color *BLACK*))
+  (when (not (numberp num-shots))
+      (return-from shot-adapter-function))
   (do-burst ((x-pos x)
 	     (y-pos y)
 	     (n num-shots)
@@ -188,7 +189,6 @@
 	     (spd speed)
 	     spread)
     (enemy-shoot x-pos y-pos spd dir color)))
-
 
 (defun draw-hud ()
   (draw-text (format nil "Alive ~a" (length *enemy-shots*))
@@ -210,7 +210,7 @@
 	 (draw-line (add pos (vec2 (- half-width) y-offset))
 		    (add pos (vec2 half-width y-offset))
 		    *RED*
-		    :thickness 8))))
+		    :thickness 6))))
 
 (defun lightning-point ()
   (mult  (normalize
@@ -244,9 +244,9 @@
   (loop for i across *enemies* do
        (draw-circle (vec2 (parent-x i)
 			  (parent-y i))
-		    32
+		    24
 		    :thickness 3
-		    :fill-paint (vec4 0 0 0 1)
+		    :fill-paint *WHITE*
 		    :stroke-paint *RED*)))
 
 (defmethod gamekit:act ((this example))
