@@ -5,9 +5,12 @@ Note: This is /not/ a good example of how to write clean code.
 This is a rushed mess of spread logic and spaghetti code, don't use as a base for your project...please.
 
 This is my entry for the Lisp Game Jam (Spring 2018)
-Special thanks to "Borodust" for trivial-gamekit
+Special thanks to "borodust" for trivial-gamekit
+https://github.com/borodust
 
-Requires Quicklisp
+Requires Quicklisp and trivial-gamekit
+
+Then unzip the source code to your "~/quicklisp/local-projects/" folder
 (ql:quickload :mds)
 (mds:run)
 
@@ -15,9 +18,11 @@ Requires Quicklisp
 Please purchase a 60hz monitor to play the game as intended. :P
 
 How To Play:
-Arrow keys OR WASD keys move the player. (dot with circle)
-Each time you touch a bullet you'll shoot the enemies increasing your score.
-However, if a bullet hits the dot in the middle you will lose a life.
+Move your player (circle) around and touch enemy bullets with the outside ring.
+If the dot inside touches an enemy shot you lose a life.
+
+- W A S D or ARROW KEYS (movement)
+- Z or Y (slow ship speed for precision)
 
 There are 3 sloppily made levels. (Feel free to toy with levels.lisp to make more)
 

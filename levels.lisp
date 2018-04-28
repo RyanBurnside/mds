@@ -3,14 +3,6 @@
 
 (cl:in-package :mds)
 
-					;TODO (yes it breaks here)
-					;abstract instance creation into 
-					;- creation
-					;- assign shot function
-					;- pushing into vector
-
-;;; Testing function
-
 ;;; TODO define some common patterns that can be pushed into the emitters
 ;;; This allows for very quick generation
 
