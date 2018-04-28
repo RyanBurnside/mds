@@ -115,7 +115,8 @@
 
 (defmethod gamekit:post-initialize ((app example))
   (loop for key in '(:z :y :w :s :a :d :left :right :up :down)
-     do (bind-movement-button key)))
+     do (bind-movement-button key))
+  (reset-game))
 
 (defun direction-to-player (x y)
   (atan (- (y (pos *player*)) y)
@@ -288,5 +289,4 @@
   (draw-hud))
 
 (defun run ()
-  (reset-game)
   (gamekit:start 'example))
