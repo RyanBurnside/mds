@@ -3,11 +3,11 @@
 
 (cl:in-package :mds)
 
-;TODO (yes it breaks here)
-;abstract instance creation into 
-;- creation
-;- assign shot function
-;- pushing into vector
+					;TODO (yes it breaks here)
+					;abstract instance creation into 
+					;- creation
+					;- assign shot function
+					;- pushing into vector
 
 ;;; Testing function
 
@@ -25,17 +25,18 @@
 
 ;; Level 1 (single emitter 7 arms swirley :) )
 (defun level-1 ()
+  (setf (ready-at *scrape-ticker*) 50)
   (let ((a (make-emitter (half-width) (* *height* .75))))
 
     (dotimes (i 100)
       (let ((percent (/ i 99.0)))
 	(push-burst a 
 		    :direction (* i percent)
-		     :spread (* TAU 6/7) 
-		     :speed 4 
-		     :num-shots 7
-		     :color (pick *GREEN* *BLUE*)
-		     :step 5)))
+		    :spread (* TAU 6/7) 
+		    :speed 4 
+		    :num-shots 7
+		    :color (pick *GREEN* *BLUE*)
+		    :step 5)))
     
     (dotimes (i 10)
       (push-burst a 
@@ -45,42 +46,44 @@
 		  :num-shots (+ i 10)
 		  :color (if (oddp i) *YELLOW* *PURPLE*)
 		  :step 3))
-    
     (vector-push-extend a *enemies*)))
 
 (defun level-2 ()
-    (let ((a (make-emitter (* *width* .20) (* *height* .75)))
-	  (b (make-emitter (* *width* .80) (* *height* .75)))
-	  (c (make-emitter (half-width) (* *height* .75))))
+  (setf (ready-at *scrape-ticker*) 70)
+  (let ((a (make-emitter (* *width* .20) (* *height* .75)))
+	(b (make-emitter (* *width* .80) (* *height* .75)))
+	(c (make-emitter (half-width) (* *height* .75))))
 
-      (push-burst a :direction 'player :num-shots 4
-		  :color *RED* :step 5 :spread (* PI .45)
-		  :speed 10)
-      
-      (push-burst b :direction 'player :num-shots 4
-		  :color *BLUE* :step 5 :spread (* PI .45)
-		  :speed 10)
+    (push-burst a :direction 'player :num-shots 4
+		:color *RED* :step 5 :spread (* PI .45)
+		:speed 10)
+    
+    (push-burst b :direction 'player :num-shots 4
+		:color *BLUE* :step 5 :spread (* PI .45)
+		:speed 10)
 
-      (push-burst c :num-shots 1 
-		  :direction 'player
-		  :step 50
-		  :speed 1)
-      (dotimes (i 100)
-	(let ((dir (random TAU)))
-	  (dotimes (j 4)
-	    (push-burst c :direction dir
-			:color (pick *ORANGE* *YELLOW* *BLACK*)
-			:spread (* TAU 6/7)
-			:step 3
-			:num-shots 6
-			:speed 6))))
-	
-      (vector-push-extend a *enemies*)
-      (vector-push-extend b *enemies*)
-      (vector-push-extend c *enemies*)))
+    (push-burst c :num-shots 1
+		:color *PURPLE*
+		:direction 'player
+		:step 50
+		:speed 1)
 
+    (dotimes (i 100)
+      (let ((dir (random TAU)))
+	(dotimes (j 4)
+	  (push-burst c :direction dir
+		      :color (pick *ORANGE* *YELLOW* *BLACK*)
+		      :spread (* TAU 6/7)
+		      :step 3
+		      :num-shots 6
+		      :speed 6))))
+    
+    (vector-push-extend a *enemies*)
+    (vector-push-extend b *enemies*)
+    (vector-push-extend c *enemies*)))
 
 (defun level-3 ()
+  (setf (ready-at *scrape-ticker*) 50)
   (let ((a (make-emitter (* *width* .25) (* *height* .95)))
 	(b (make-emitter (* *width* .75) (* *height* .95)))
 	(sniper (make-emitter (half-width) (* *height* .80))))
