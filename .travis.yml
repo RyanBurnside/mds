@@ -13,7 +13,7 @@ env:
   - GAMEKIT_APPLICATION_MAIN_CLASS: example
   - PATH: ~/bin/:$PATH
   - GAMEKIT_TARGET_PACKAGE: $GAMEKIT_SYSTEM_NAME-x86-64-$TRAVIS_OS_NAME-$TRAVIS_BRANCH.zip
-  - GAMEKIT_BUILD_DIR: /tmp/$(GAMEKIT_SYSTEM_NAME)
+  - GAMEKIT_BUILD_DIR: /tmp/$GAMEKIT_SYSTEM_NAME
   - secure: "lTWz3pAuKYqEmsxDSuaIDAkUNUoQCFA8QiTiXWif0z0SfIs5zcM9/51ZMtt32XM0Tg/EcfzHUxjGifh6FKh5J0VEBR3rR+1ARzKdy7rlCP0vtkhw7ua2Iu0N89iz5t1CdXvG9DS9XfS1Ku+1UYqYzumYxih6w6lYYVKRVurKCUNmqLbo+1KLCLCLjNn7RbxHc6xe4DKbY5u0c8aEFsRitRfitGBP/Ej3emCihDooT/ZeOuvJp8s0HP0iNL5ANLnRiFTqflSDikkHyoAIdA895TJlJErdy87R1qrYFz0rWKYFiCk9Ks2hpn9DTrxCL4uazWgHur8iL+l8AH6uUNA3jw/Mdcl6ANCw9YFBemrJ52LpOvrMuONA6fkJaX7zO6m7mmedko51XM8nilao895usFsSHD+WHr7jmj0iljoVlqbwGGbBKeKYVdUEsonj/WwyFlRpBGXSHG2jNWHzNTBdI7AgiaoF5I8THnqTW6KuGVNhXsUnWx+Nree7qQamYiuiunVw2h8buuqtPB2dDazQWJ2zXY1aqRrvT8GhQ4fjHjWstAfa2Zz1GThPjKDnBD+jC/gGhgE9Wiv/9Ar3C1Pkv6BirTyBKw/TKgjrBnbP8nMf/5NYLXzzs6hSjM4stT7lQLm0AmGe9a0fd5Psm+0y/ZoB6a7kodMhpWH0rOnty+Y="
 
 
@@ -26,7 +26,7 @@ os:
   - osx
 
 install:
-  - curl -L http://bodge.borodust.org/files/install.sh | sh
+  - curl -L http://bodge.borodust.org/files/install.sh | sh -s ccl
 
 cache:
   directories:
@@ -35,7 +35,7 @@ cache:
 
 script:
   - >
-    sbcl --script $HOME/bodge/scripts/build-gamekit-system.lisp
+    lisp $HOME/bodge/scripts/build-gamekit-system.lisp
     $GAMEKIT_SYSTEM_NAME $GAMEKIT_APPLICATION_PACKAGE $GAMEKIT_APPLICATION_MAIN_CLASS
     $TRAVIS_BUILD_DIR
     $GAMEKIT_BUILD_DIR
